@@ -195,22 +195,25 @@ public class EnemyAiTutorial : MonoBehaviour
     }
 
     private void LookAtObject(Transform obj) {
-        Vector3 targetPostition = new Vector3(obj.position.x, this.transform.position.y, obj.position.z);
-        this.transform.LookAt(targetPostition);
+
         // Debug.Log(this.transform.eulerAngles.x + "; " + this.transform.eulerAngles.y + "; " + this.transform.eulerAngles.z);
 
         foreach (Transform child in transform.GetComponentsInChildren<Transform>()) {
-            if (child.name == "mixamorig:Spine1") {
-                // Vector3 relativePos = player.position + new Vector3(-16, 0, 0);
+            if (child.name == "weapon") {
+                // Vector3 relativePos = player.position - child.position;
                 // Debug.Log("child.eulerAngles: " + child.eulerAngles.x + "; " + child.eulerAngles.y + "; " + child.eulerAngles.z);
-                // Quaternion rotation = Quaternion.LookRotation(relativePos, Vector3.up);
+                // Quaternion rotation = Quaternion.LookRotation(relativePos);
+                // Quaternion current = child.localRotation;
+                // child.localRotation = Quaternion.Slerp(current, rotation, Time.deltaTime * 1);
                 // child.rotation = rotation;
-                // child.LookAt(new Vector3(player.position.x, player.position.y, player.position.z) - new Vector3(16, 0, 0));
-                child.LookAt(new Vector3(obj.position.x, obj.position.y, obj.position.z));
-                child.eulerAngles = new Vector3(child.eulerAngles.x + 16, child.eulerAngles.y, child.eulerAngles.z);
+                child.LookAt(new Vector3(player.position.x, player.position.y, player.position.z));
+                // child.eulerAngles = new Vector3(child.eulerAngles.x, child.eulerAngles.y + 80, child.eulerAngles.z);
+                // child.LookAt(new Vector3(obj.position.x, obj.position.y, obj.position.z));
             }
         }
-        this.transform.eulerAngles = new Vector3(this.transform.eulerAngles.x, this.transform.eulerAngles.y + 60, this.transform.eulerAngles.z);
+        Vector3 targetPostition = new Vector3(obj.position.x, this.transform.position.y, obj.position.z);
+        this.transform.LookAt(targetPostition);
+        // this.transform.eulerAngles = new Vector3(this.transform.eulerAngles.x, this.transform.eulerAngles.y, this.transform.eulerAngles.z);
     }
 
 
