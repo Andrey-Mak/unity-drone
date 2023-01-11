@@ -13,6 +13,8 @@ public class EnemyAiTutorial : MonoBehaviour
 
     public LayerMask whatIsGround, whatIsPlayer;
 
+    public float distanceWhenRun = 2f;
+
     public float health = 2f;
 
     //Patroling
@@ -22,7 +24,7 @@ public class EnemyAiTutorial : MonoBehaviour
 
     //Attacking
     public float timeBetweenAttacks;
-    bool alreadyAttacked, isPatroling, isDetect;
+    bool alreadyAttacked, isPatroling, isDetect, isRuningToSafePlace, isCrouch;
     public GameObject projectile;
 
     //States
@@ -30,10 +32,13 @@ public class EnemyAiTutorial : MonoBehaviour
     public bool playerInSightRange, playerInAttackRange, IsDieded = false;
 
     List<Transform> navPoints = new List<Transform>();
+    List<Transform> savePoints = new List<Transform>();
     private int walkPointNumber = 0;
 
     private Rigidbody[] _rigidbodies;
     private EnemyGun[] _guns;
+    private float detectedSightRange = 0f;
+    private float currentSightRange;
 
     private void Awake()
     {
@@ -50,13 +55,18 @@ public class EnemyAiTutorial : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
            // navPoints = this.gameObject.transform.Find("/NavPoints").gameObject.transform;
+
         foreach (Transform child in transform) {
             if (child.tag == "Points") {
                 foreach (Transform point in child) {
                     navPoints.Add(point.transform);
                 }
                 child.DetachChildren();
-             }
+            }
+        }
+
+        foreach (GameObject savePoint in GameObject.FindGameObjectsWithTag("SavePoints")) {
+            savePoints.Add(savePoint.transform);
         }
     }
 
@@ -89,30 +99,37 @@ public class EnemyAiTutorial : MonoBehaviour
     {
         //Check for sight and attack range
         if (!IsDieded) {
-            playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsPlayer);
+            currentSightRange = detectedSightRange > 0 ? detectedSightRange : sightRange;
+            playerInSightRange = Physics.CheckSphere(transform.position, currentSightRange, whatIsPlayer);
             playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, whatIsPlayer);
         
-            if (!playerInSightRange && !playerInAttackRange) Patroling();
-            if (playerInSightRange && !playerInAttackRange) DetectPlayer();
-            if (playerInAttackRange && playerInSightRange) AttackPlayer();
+            if (!playerInSightRange && !playerInAttackRange && !isRuningToSafePlace && !isCrouch) Patroling();
+            if (playerInSightRange && !playerInAttackRange && !isRuningToSafePlace && !isCrouch) DetectPlayer();
+            if (playerInAttackRange && playerInSightRange && !isRuningToSafePlace && !isCrouch) AttackPlayer();
+            if (isRuningToSafePlace && !isCrouch) RunToSafePlace();
+            if (isCrouch) Invoke(nameof(CheckDanger), 20);
         }
         animator.SetBool("isDetect", isDetect);
         animator.SetBool("isAttack", alreadyAttacked);
         animator.SetBool("isPatrolling", isPatroling);
+        animator.SetBool("isRun", isRuningToSafePlace);
+        animator.SetBool("isCrouch", isCrouch);
     }
 
-    private void Patroling()
-    {   
+    private void Patroling() {   
         isDetect = false;
         alreadyAttacked = false;
-        isPatroling = true;
         if (!walkPointSet) {
             Invoke(nameof(SearchWalkPoint), 5);
         };
 
-        if (walkPointSet) {
-            agent.SetDestination(walkPoint);
+        if (detectedSightRange > 0) {
+            Invoke(nameof(DetectedSightRangeToZero), 5);
+        }
 
+        if (walkPointSet) {
+            isPatroling = true;
+            agent.SetDestination(walkPoint);
         }
 
         Vector3 distanceToWalkPoint = transform.position - walkPoint;
@@ -128,8 +145,8 @@ public class EnemyAiTutorial : MonoBehaviour
             isPatroling = false;
         }  
     }
-    private void SearchWalkPoint()
-    {
+
+    private void SearchWalkPoint() {
         //Calculate random point in range
         // float randomZ = Random.Range(-walkPointRange, walkPointRange) + 2f;
         // float randomX = Random.Range(-walkPointRange, walkPointRange) + 2f;
@@ -141,34 +158,67 @@ public class EnemyAiTutorial : MonoBehaviour
             walkPointSet = true;
     }
 
-    private void DetectPlayer()
-    {   
+    private void DetectedSightRangeToZero() {
+        detectedSightRange = 0;
+    }
+
+    private void RunToSafePlace() {
+        isDetect = false;
+        alreadyAttacked = false;
+        isPatroling = false;
+        isRuningToSafePlace = true;
+        this.transform.LookAt(this.transform.position);
+        agent.speed = 3;
+        Vector3 SavePointPosition = new Vector3(savePoints[0].position.x, transform.position.y, savePoints[0].position.z);
+        agent.SetDestination(SavePointPosition);
+        if (this.transform.position == SavePointPosition) {
+            agent.speed = 1;
+            isRuningToSafePlace = false;
+            isCrouch = true;
+        }
+    }
+
+    private void DetectPlayer() {
         if (!IsDieded) {
-            LookAtPlayer();
+            LookAtObject(player);
             agent.ResetPath();
             isDetect = true;
             alreadyAttacked = false;
             isPatroling = false;
+            if (detectedSightRange == 0) {
+                detectedSightRange = sightRange * 2f;
+            }
+            if (Mathf.Abs(player.position.x - transform.position.x) < distanceWhenRun && Mathf.Abs(player.position.z - transform.position.z) < distanceWhenRun) {
+                isRuningToSafePlace = true;
+            }
         }
     }
 
-    private void ChasePlayer()
-    {   
-        // agent.SetDestination(player.position);
-    }
-
-    private void LookAtPlayer() {
-        Vector3 targetPostition = new Vector3(player.position.x, this.transform.position.y, player.position.z);
+    private void LookAtObject(Transform obj) {
+        Vector3 targetPostition = new Vector3(obj.position.x, this.transform.position.y, obj.position.z);
         this.transform.LookAt(targetPostition);
+        // Debug.Log(this.transform.eulerAngles.x + "; " + this.transform.eulerAngles.y + "; " + this.transform.eulerAngles.z);
+
+        foreach (Transform child in transform.GetComponentsInChildren<Transform>()) {
+            if (child.name == "mixamorig:Spine1") {
+                // Vector3 relativePos = player.position + new Vector3(-16, 0, 0);
+                // Debug.Log("child.eulerAngles: " + child.eulerAngles.x + "; " + child.eulerAngles.y + "; " + child.eulerAngles.z);
+                // Quaternion rotation = Quaternion.LookRotation(relativePos, Vector3.up);
+                // child.rotation = rotation;
+                // child.LookAt(new Vector3(player.position.x, player.position.y, player.position.z) - new Vector3(16, 0, 0));
+                child.LookAt(new Vector3(obj.position.x, obj.position.y, obj.position.z));
+                child.eulerAngles = new Vector3(child.eulerAngles.x + 16, child.eulerAngles.y, child.eulerAngles.z);
+            }
+        }
+        this.transform.eulerAngles = new Vector3(this.transform.eulerAngles.x, this.transform.eulerAngles.y + 60, this.transform.eulerAngles.z);
     }
 
 
-    private void AttackPlayer()
-    {
+    private void AttackPlayer() {
         //Make sure enemy doesn't move
         // agent.SetDestination(transform.position);
         isPatroling = false;
-        LookAtPlayer();
+        LookAtObject(player);
 
         if (!alreadyAttacked)
         {
@@ -186,8 +236,15 @@ public class EnemyAiTutorial : MonoBehaviour
             Invoke(nameof(ResetAttack), timeBetweenAttacks);
         }
     }
-    private void ResetAttack()
-    {
+
+    private void CheckDanger() {
+        if (!playerInSightRange && !playerInAttackRange) {
+            isCrouch = false;
+            Patroling();
+        }
+    }
+
+    private void ResetAttack() {
         alreadyAttacked = false;
     }
 

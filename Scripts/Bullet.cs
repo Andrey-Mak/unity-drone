@@ -59,6 +59,7 @@ public class Bullet : MonoBehaviour {
             }
             if (rigidbody) {
                 // rigidbody.AddForceAtPosition(transform.up * Force, transform.position);
+                rigidbody.isKinematic = false;
                 rigidbody.AddExplosionForce(Force, transform.position, Radius, 3.0F);
                 timeLeft = explosion.main.duration;
                 explosion.Play();
