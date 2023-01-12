@@ -60,6 +60,7 @@ public class EnemyAiTutorial : MonoBehaviour
             if (child.tag == "Points") {
                 foreach (Transform point in child) {
                     navPoints.Add(point.transform);
+                    point.gameObject.GetComponent<MeshRenderer>().enabled = false;
                 }
                 child.DetachChildren();
             }
@@ -199,7 +200,7 @@ public class EnemyAiTutorial : MonoBehaviour
         // Debug.Log(this.transform.eulerAngles.x + "; " + this.transform.eulerAngles.y + "; " + this.transform.eulerAngles.z);
 
         foreach (Transform child in transform.GetComponentsInChildren<Transform>()) {
-            if (child.name == "weapon") {
+            if (child.name == "weapon" || child.name == "mixamorig:Head") {
                 // Vector3 relativePos = player.position - child.position;
                 // Debug.Log("child.eulerAngles: " + child.eulerAngles.x + "; " + child.eulerAngles.y + "; " + child.eulerAngles.z);
                 // Quaternion rotation = Quaternion.LookRotation(relativePos);
