@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class DroneFPMovement : MonoBehaviour
 {
-    public float speed = 5;
+    public float speed = 5f;
+    public float speedOfHeight = 1f;
 
     [Header("Running")]
     public bool canRun = true;
@@ -14,16 +15,17 @@ public class DroneFPMovement : MonoBehaviour
     public KeyCode runningKey = KeyCode.LeftShift;
 
     [SerializeField]
-    Transform character;
+    Transform droneModel;
+
     Rigidbody rigidbody;
     /// <summary> Functions to override movement speed. Will use the last added override. </summary>
     public List<System.Func<float>> speedOverrides = new List<System.Func<float>>();
 
     private float heightSpeed = 0f;
+    private float rotatePosition = 0f;
 
     void Awake()
     {
-        // Get the rigidbody on this.
         rigidbody = GetComponent<Rigidbody>();
     }
 
@@ -40,7 +42,7 @@ public class DroneFPMovement : MonoBehaviour
         }
 
         if (Mathf.Round(transform.position.y) != height) {
-            heightSpeed = Mathf.Round(transform.position.y) < height ? 1 : -1;
+            heightSpeed = Mathf.Round(transform.position.y) < height ? speedOfHeight : -speedOfHeight;
             rigidbody.constraints = RigidbodyConstraints.None;
         } else {
             heightSpeed = 0;
@@ -56,7 +58,9 @@ public class DroneFPMovement : MonoBehaviour
         // Apply movement.
         // rigidbody.velocity = transform.rotation * new Vector3(targetVelocity.x, rigidbody.velocity.y, targetVelocity.y);
         // rigidbody.velocity = transform.rotation * new Vector3(targetVelocity.x, rigidbody.velocity.y, targetVelocity.y);
+
         rigidbody.velocity = transform.rotation * targetVelocity;
+        // droneModel.rotation = Quaternion.Euler(-variableJoystickL.Vertical * 4, 0, -variableJoystickL.Horizontal * 4);
 
         // Vector3 direction = Vector3.forward * variableJoystickL.Vertical + Vector3.right * variableJoystickL.Horizontal;
         // rigidbody.AddForce(direction * speed * Time.fixedDeltaTime, ForceMode.VelocityChange);

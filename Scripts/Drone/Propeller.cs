@@ -5,6 +5,6 @@ using UnityEngine;
 public class Propeller : MonoBehaviour
 {
     void Update() {
-        transform.Rotate(new Vector3(0f, 360f, 0f) * Time.deltaTime);
+        transform.Rotate(new Vector3(0f, 720f, 0f) * Time.deltaTime);
     }
 }

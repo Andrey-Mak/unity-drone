@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class EnemyBullet : MonoBehaviour {
+    public float damage = 10;
     private bool isActive = true;
     private float timeLeft = 10;
 
@@ -23,10 +23,6 @@ public class EnemyBullet : MonoBehaviour {
 
         GetComponent<Rigidbody>().useGravity = true;
 
-        // Enemy enemy = collision.gameObject.GetComponent<Enemy>();
-        // if (enemy) {
-        //     enemy.OnHit();
-        // }
-        Debug.Log("Enemy Bullet");
+        PlayerManager.onPlayerDamage(collision);
     }
 }

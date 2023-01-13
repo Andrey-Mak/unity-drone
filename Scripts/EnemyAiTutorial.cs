@@ -189,9 +189,13 @@ public class EnemyAiTutorial : MonoBehaviour
             if (detectedSightRange == 0) {
                 detectedSightRange = sightRange * 2f;
             }
-            if (Mathf.Abs(player.position.x - transform.position.x) < distanceWhenRun && Mathf.Abs(player.position.z - transform.position.z) < distanceWhenRun) {
-                isRuningToSafePlace = true;
-            }
+            NeedRun();
+        }
+    }
+
+    private void NeedRun() {
+        if (Mathf.Abs(player.position.x - transform.position.x) < distanceWhenRun && Mathf.Abs(player.position.z - transform.position.z) < distanceWhenRun) {
+            isRuningToSafePlace = true;
         }
     }
 
@@ -219,22 +223,14 @@ public class EnemyAiTutorial : MonoBehaviour
 
 
     private void AttackPlayer() {
-        //Make sure enemy doesn't move
-        // agent.SetDestination(transform.position);
         isPatroling = false;
         LookAtObject(player);
-
+        NeedRun();
         if (!alreadyAttacked)
         {
-            ///Attack code here
             foreach (var _gun in _guns) {
                 _gun.Attack();
             }
-
-            // Rigidbody rb = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
-            // rb.AddForce(transform.forward * 32f, ForceMode.Impulse);
-            // rb.AddForce(transform.up * 8f, ForceMode.Impulse);
-            ///End of attack code
 
             alreadyAttacked = true;
             Invoke(nameof(ResetAttack), timeBetweenAttacks);
@@ -259,10 +255,6 @@ public class EnemyAiTutorial : MonoBehaviour
         health -= damage;
 
         if (health <= 0) Invoke(nameof(DestroyEnemy), 5f);
-    }
-    private void DestroyEnemy()
-    {
-        // Destroy(gameObject);
     }
 
     private void OnDrawGizmosSelected()

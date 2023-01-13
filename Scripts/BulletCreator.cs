@@ -18,6 +18,7 @@ public class BulletCreator : MonoBehaviour
 
     public void Attack() {
         GameObject newBullet = Instantiate(bulletPrefab, transform.position, transform.rotation);
+        newBullet.layer = 8;
         newBullet.GetComponent<Rigidbody>().velocity = transform.forward * BulletVelocity;
     }
 }
