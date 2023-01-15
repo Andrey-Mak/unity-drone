@@ -254,7 +254,7 @@ public class EnemyAiTutorial : MonoBehaviour
         IfDied();
         health -= damage;
 
-        if (health <= 0) Invoke(nameof(DestroyEnemy), 5f);
+        // if (health <= 0) Invoke(nameof(DestroyEnemy), 5f);
     }
 
     private void OnDrawGizmosSelected()
