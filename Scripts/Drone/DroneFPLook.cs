@@ -4,8 +4,9 @@ public class DroneFPLook : MonoBehaviour
 {
     [SerializeField]
     Transform character;
-    public float sensitivity = 1;
-    public float smoothing = 0.5f;
+    public float sensitivity = 5;
+    public float smoothing = 1f;
+    public float speedRotation = 0.15f;
     public VariableJoystick variableJoystickR;
 
     Vector2 velocity;
@@ -29,7 +30,7 @@ public class DroneFPLook : MonoBehaviour
         // Get smooth velocity.
         // Vector2 mouseDelta = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
         Vector2 mouseDelta = new Vector2(variableJoystickR.Horizontal, variableJoystickR.Vertical);
-        Vector2 rawFrameVelocity = Vector2.Scale(mouseDelta * 0.1f, Vector2.one * sensitivity);
+        Vector2 rawFrameVelocity = Vector2.Scale(mouseDelta * speedRotation, Vector2.one * sensitivity);
         frameVelocity = Vector2.Lerp(frameVelocity, rawFrameVelocity, 1 / smoothing);
         velocity += frameVelocity;
         velocity.y = Mathf.Clamp(velocity.y, -90, 0);

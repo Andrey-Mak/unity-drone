@@ -11,11 +11,21 @@ public class Bullet : MonoBehaviour {
     private bool isActive = true;
     private float timeLeft = 10;
 
+    private Rigidbody rb;
+
+    public float windForce = 0f;
+    public Vector3 windPosition = new Vector3(0, 0, 0);
+
+    private void Awake() {
+        rb = GetComponent<Rigidbody>();
+    }
+
     private void Start() {
         explosion.Stop();
     }
 
     private void Update() {
+        rb.AddForce(windPosition * windForce * Random.Range(-100, 100) * 0.01f, ForceMode.Acceleration);
         if (timeLeft > 0.0f) {
             timeLeft -= Time.deltaTime;
             if (timeLeft <= 0.0f) {
@@ -29,7 +39,7 @@ public class Bullet : MonoBehaviour {
         if (!isActive) return;
         isActive = false;
 
-        GetComponent<Rigidbody>().useGravity = true;
+        rb.useGravity = true;
 
         // Enemy enemy = collision.gameObject.GetComponent<Enemy>();
         // if (enemy) {
@@ -64,6 +74,7 @@ public class Bullet : MonoBehaviour {
                 timeLeft = explosion.main.duration;
                 explosion.Play();
                 GetComponent<MeshRenderer>().enabled = false;
+                GetComponent<SphereCollider>().enabled = false;
                 GetComponent<Rigidbody>().isKinematic = true;
                 // Destroy(gameObject);
                 // StartCoroutine(Explosion());

@@ -7,6 +7,17 @@ public class BulletCreator : MonoBehaviour
 {
     public GameObject bulletPrefab;
     public float BulletVelocity = 1f;
+    public int timeBetweenAttacks = 2;
+
+    private float windForce;
+    private Vector3 windPosition;
+    private bool alreadyAttacked;
+
+    private void Awake() {
+        windPosition = new Vector3(Random.Range(-20, 20) * 0.1f, 0, Random.Range(-20, 20) * 0.1f);
+        windForce = Random.Range(0, 50) * 0.1f;
+        Debug.Log("windPosition: " + windPosition + "; windForce: " + windForce);
+    }
 
     void Update()
     {
@@ -17,8 +28,19 @@ public class BulletCreator : MonoBehaviour
     }
 
     public void Attack() {
-        GameObject newBullet = Instantiate(bulletPrefab, transform.position, transform.rotation);
-        newBullet.layer = 8;
-        newBullet.GetComponent<Rigidbody>().velocity = transform.forward * BulletVelocity;
+        if (!alreadyAttacked) {
+            GameObject newBullet = Instantiate(bulletPrefab, transform.position, transform.rotation);
+            newBullet.layer = 8;
+            Bullet bullet = newBullet.GetComponent<Bullet>();
+            bullet.windForce = windForce;
+            bullet.windPosition = windPosition;
+            newBullet.GetComponent<Rigidbody>().velocity = transform.forward * BulletVelocity;
+            alreadyAttacked = true;
+            Invoke(nameof(ResetAttack), timeBetweenAttacks);
+        }
+    }
+
+    private void ResetAttack() {
+        alreadyAttacked = false;
     }
 }

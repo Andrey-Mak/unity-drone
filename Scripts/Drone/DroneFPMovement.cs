@@ -60,10 +60,18 @@ public class DroneFPMovement : MonoBehaviour
         // rigidbody.velocity = transform.rotation * new Vector3(targetVelocity.x, rigidbody.velocity.y, targetVelocity.y);
 
         rigidbody.velocity = transform.rotation * targetVelocity;
-        // droneModel.rotation = Quaternion.Euler(-variableJoystickL.Vertical * 4, 0, -variableJoystickL.Horizontal * 4);
+        // rigidbody.AddTorque(new Vector3(targetMovingSpeed, 0, targetMovingSpeed), ForceMode.Impulse);
+
+        // if (variableJoystickL.Horizontal == 0 && variableJoystickL.Vertical == 0 ) {
+        //     Debug.Log("!!!!!!!!");
+        //     rigidbody.AddTorque(new Vector3(targetMovingSpeed, 0, targetMovingSpeed), ForceMode.Impulse);
+        // }
+
+
+         // droneModel.rotation = Quaternion.Euler(-variableJoystickL.Vertical * targetMovingSpeed, 0, -variableJoystickL.Horizontal * targetMovingSpeed);
 
         // Vector3 direction = Vector3.forward * variableJoystickL.Vertical + Vector3.right * variableJoystickL.Horizontal;
-        // rigidbody.AddForce(direction * speed * Time.fixedDeltaTime, ForceMode.VelocityChange);
+        // rigidbody.AddForce(direction * speed * Time.fixedDeltaTime, ForceMode.Force);
     }
 
     public void Rise(float newHeight) {
