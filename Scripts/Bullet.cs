@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.AI;
 
 public class Bullet : MonoBehaviour {
-    public float Radius = 2f;
-    public float Force = 100f;
+    public float Radius = 1f;
+    public float Force = 400f;
     public ParticleSystem explosion;
 
     private bool isActive = true;

@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 
 public class BulletCreator : MonoBehaviour
 {
     public GameObject bulletPrefab;
+    public TextMeshProUGUI booletCountText;
     public float BulletVelocity = 1f;
     public int timeBetweenAttacks = 2;
 
@@ -21,6 +23,7 @@ public class BulletCreator : MonoBehaviour
 
     void Update()
     {
+        booletCountText.text = "Boolets: " + PlayerSettings.BOOLET_COUNT;
         // if (Input.GetMouseButtonDown(0)) {
         //     GameObject newBullet = Instantiate(bulletPrefab, transform.position, transform.rotation);
         //     newBullet.GetComponent<Rigidbody>().velocity = transform.forward * BulletVelocity;
@@ -28,7 +31,8 @@ public class BulletCreator : MonoBehaviour
     }
 
     public void Attack() {
-        if (!alreadyAttacked) {
+        if (!alreadyAttacked && PlayerSettings.BOOLET_COUNT > 0) {
+            PlayerSettings.BOOLET_COUNT--;
             GameObject newBullet = Instantiate(bulletPrefab, transform.position, transform.rotation);
             newBullet.layer = 8;
             Bullet bullet = newBullet.GetComponent<Bullet>();

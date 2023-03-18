@@ -4,12 +4,12 @@ using UnityEngine;
 public class DroneFPMovement : MonoBehaviour
 {
     public float speed = 5f;
-    public float speedOfHeight = 1f;
+    public float speedOfHeight = 2f;
 
     [Header("Running")]
     public bool canRun = true;
     public bool IsRunning { get; private set; }
-    public float runSpeed = 9;
+    public float runSpeed = 8;
     public float height = 10f;
     public VariableJoystick variableJoystickL;
     public KeyCode runningKey = KeyCode.LeftShift;

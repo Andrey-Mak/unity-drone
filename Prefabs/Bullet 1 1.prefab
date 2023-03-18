@@ -14742,8 +14742,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Radius: 1
-  Force: 1000
+  Force: 400
   explosion: {fileID: 9067167771673055780}
+  windForce: 0
+  windPosition: {x: 0, y: 0, z: 0}
 --- !u!1 &9067167770587079850
 GameObject:
   m_ObjectHideFlags: 0

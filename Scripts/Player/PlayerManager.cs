@@ -7,9 +7,13 @@ public class PlayerManager : MonoBehaviour
 {
     void Start() {
         PlayerSettings.IS_GAME_OVER = false;
+        PlayerSettings.BOOLET_COUNT = 10;
     }
 
     void Update() {
+        if (PlayerSettings.BOOLET_COUNT <= 0) {
+            Invoke(nameof(GameOver), 5);
+        }
         if (PlayerSettings.IS_GAME_OVER) {
             SceneManager.LoadScene("SampleScene");
         }
@@ -17,5 +21,9 @@ public class PlayerManager : MonoBehaviour
 
     public static void onPlayerDamage(Collision target) {
         Debug.Log("onPlayerDamage: " + target.collider);
+    }
+
+    private void GameOver() {
+        PlayerSettings.IS_GAME_OVER = true;
     }
 }
