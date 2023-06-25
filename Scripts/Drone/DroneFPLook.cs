@@ -6,9 +6,10 @@ public class DroneFPLook : MonoBehaviour
 {
     Camera camera;
     public float defaultFOV = 70;
-    public float maxZoomFOV = 10;
+    public float maxZoomFOV = 9;
     [Range(0, 1)]
     private float currentZoom = 0;
+    private float zoom = 0;
     public TextMeshProUGUI zoomText;
     public float sensitivity = 5;
 
@@ -61,19 +62,31 @@ public class DroneFPLook : MonoBehaviour
         transform.localRotation = Quaternion.AngleAxis(-velocity.y, Vector3.right);
         // character.localRotation = Quaternion.Euler(velocity.y, -velocity.x, 0);
         character.localRotation = Quaternion.AngleAxis(velocity.x, Vector3.up);
+        cameraZoom();
     }
 
-    public void Zoom(int zoomValue) {
-        if (currentZoom < 0.9) {
+    public void ZoomIn(int zoomValue) {
+        if (currentZoom < maxZoomFOV * 0.1f) {
             currentZoom += zoomValue * 0.1f;
             target.localScale = new Vector3(target.localScale.x - 0.0003f, target.localScale.y - 0.0003f, target.localScale.z - 0.0003f);
-        } else {
-            currentZoom = 0;
-            target.localScale = new Vector3(0.005f, 0.005f, 0.005f);
         }
-        Debug.Log(target.localScale.y);
-        currentZoom = Mathf.Clamp01(currentZoom);
-        camera.fieldOfView = Mathf.Lerp(defaultFOV, maxZoomFOV, currentZoom);
+    }
 
+    public void ZoomOut(int zoomValue) {
+        if (currentZoom > 0) {
+            currentZoom -= zoomValue * 0.1f;
+            target.localScale = new Vector3(target.localScale.x + 0.0003f, target.localScale.y + 0.0003f, target.localScale.z + 0.0003f);
+        }
+    }
+
+    private void cameraZoom() {
+        if (currentZoom > zoom) {
+            zoom += 0.002f;
+        }
+        if (currentZoom < zoom) {
+            zoom -= 0.002f;
+        }
+        zoom = Mathf.Clamp01(zoom);
+        camera.fieldOfView = Mathf.Lerp(defaultFOV, maxZoomFOV, zoom);
     }
 }
