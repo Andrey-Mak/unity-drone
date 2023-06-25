@@ -11,7 +11,7 @@ public class EnemyAiTutorial : MonoBehaviour
 
     public Transform player;
 
-    public LayerMask whatIsGround, whatIsPlayer;
+    public LayerMask whatIsGround, whatIsPlayer, whatIsBoolet;
 
     public float distanceWhenRun = 2f;
 
@@ -85,7 +85,6 @@ public class EnemyAiTutorial : MonoBehaviour
     }
 
     public void IfDied() {
-        Debug.Log("IfDied");
         agent.enabled = false;
         animator.enabled = false;
         EnableRagdoll();
@@ -94,6 +93,7 @@ public class EnemyAiTutorial : MonoBehaviour
         isDetect = false;
         alreadyAttacked = false;
         isPatroling = false;
+        PlayerSettings.KILLED_TROOPS += 1;
     }
 
     private void Update()
@@ -251,8 +251,8 @@ public class EnemyAiTutorial : MonoBehaviour
     public void TakeDamage(int damage)
     {
         Debug.Log("TakeDamage");
-        IfDied();
         health -= damage;
+        if (health <= 0 && !IsDieded) IfDied();
 
         // if (health <= 0) Invoke(nameof(DestroyEnemy), 5f);
     }

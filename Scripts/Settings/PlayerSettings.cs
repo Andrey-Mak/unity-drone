@@ -13,4 +13,5 @@ public static class PlayerSettings {
     public static float DRONE_CURRENT_BATTERY_CHARGE = 100f;
     public static float DRONE_CURRENT_HEIGHT = 10f;
     public static int BOOLET_COUNT = 10;
+    public static int KILLED_TROOPS = 0;
 }

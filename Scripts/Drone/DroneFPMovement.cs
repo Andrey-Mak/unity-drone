@@ -35,25 +35,25 @@ public class DroneFPMovement : MonoBehaviour
         IsRunning = canRun && Input.GetKey(runningKey);
 
         // Get targetMovingSpeed.
-        float targetMovingSpeed = IsRunning ? runSpeed : speed;
-        if (speedOverrides.Count > 0)
-        {
-            targetMovingSpeed = speedOverrides[speedOverrides.Count - 1]();
-        }
+        // float targetMovingSpeed = IsRunning ? runSpeed : speed;
+        // if (speedOverrides.Count > 0)
+        // {
+        //     targetMovingSpeed = speedOverrides[speedOverrides.Count - 1]();
+        // }
 
-        if (Mathf.Round(transform.position.y) != height) {
-            heightSpeed = Mathf.Round(transform.position.y) < height ? speedOfHeight : -speedOfHeight;
-            rigidbody.constraints = RigidbodyConstraints.None;
-        } else {
-            heightSpeed = 0;
-            rigidbody.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationY;
-        }
+        // if (Mathf.Round(transform.position.y) != height) {
+        //     heightSpeed = Mathf.Round(transform.position.y) < height ? speedOfHeight : -speedOfHeight;
+        //     rigidbody.constraints = RigidbodyConstraints.None;
+        // } else {
+        //     heightSpeed = 0;
+        //     rigidbody.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationY;
+        // }
 
         // Get targetVelocity from input.
         // Vector2 targetVelocity = new Vector2( Input.GetAxis("Horizontal") * targetMovingSpeed, Input.GetAxis("Vertical") * targetMovingSpeed);
         // Debug.Log(heightSpeed);
 
-        Vector3 targetVelocity = new Vector3(variableJoystickL.Horizontal * targetMovingSpeed, heightSpeed, variableJoystickL.Vertical * targetMovingSpeed);
+        Vector3 targetVelocity = new Vector3(variableJoystickL.Horizontal * speed, 0, variableJoystickL.Vertical * speed);
 
         // Apply movement.
         // rigidbody.velocity = transform.rotation * new Vector3(targetVelocity.x, rigidbody.velocity.y, targetVelocity.y);
