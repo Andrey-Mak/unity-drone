@@ -5,10 +5,11 @@ using UnityEngine.AI;
 
 public class Bullet : MonoBehaviour {
     public float Radius = 1f;
-    public float Force = 400f;
+    public float Force = 1f;
     public ParticleSystem explosion;
+    public GameObject Crater;
 
-    private bool isActive = true;
+    private bool isActive = true; 
     private float timeLeft = 10;
 
     private Rigidbody rb;
@@ -41,6 +42,13 @@ public class Bullet : MonoBehaviour {
 
         rb.useGravity = true;
 
+        Terrain ground = collision.gameObject.GetComponent<Terrain>();
+
+        if (ground) {
+            MeshRenderer CraterMeshRenderer = Crater.GetComponent<MeshRenderer>();
+            CraterMeshRenderer.enabled = true;
+        }
+
         // Enemy enemy = collision.gameObject.GetComponent<Enemy>();
         // if (enemy) {
         //     enemy.OnHit();
@@ -61,6 +69,7 @@ public class Bullet : MonoBehaviour {
             Rigidbody rigidbody = overlappedColliders[i].attachedRigidbody;
             Animator animator = overlappedColliders[i].GetComponentInParent<Animator>();
             UnityEngine.AI.NavMeshAgent agent = overlappedColliders[i].GetComponentInParent<NavMeshAgent>();
+
             if (animator) {
                 animator.enabled = false;
             }

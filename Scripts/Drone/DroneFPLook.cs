@@ -49,7 +49,7 @@ public class DroneFPLook : MonoBehaviour
 
     void Update()
     {
-        zoomText.text = "x" + (currentZoom * 10 + 1).ToString("F0");
+        zoomText.text = "x" + (currentZoom).ToString("F0");
         // Get smooth velocity.
         // Vector2 mouseDelta = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
         Vector2 mouseDelta = new Vector2(variableJoystickR.Horizontal, variableJoystickR.Vertical);
@@ -60,31 +60,30 @@ public class DroneFPLook : MonoBehaviour
 
         // Rotate camera up-down and controller left-right from velocity.
         transform.localRotation = Quaternion.AngleAxis(-velocity.y, Vector3.right);
-        // character.localRotation = Quaternion.Euler(velocity.y, -velocity.x, 0);
         character.localRotation = Quaternion.AngleAxis(velocity.x, Vector3.up);
         cameraZoom();
     }
 
     public void ZoomIn(int zoomValue) {
-        if (currentZoom < maxZoomFOV * 0.1f) {
-            currentZoom += zoomValue * 0.1f;
+        if (currentZoom < maxZoomFOV) {
+            currentZoom += zoomValue;
             target.localScale = new Vector3(target.localScale.x - 0.0003f, target.localScale.y - 0.0003f, target.localScale.z - 0.0003f);
         }
     }
 
     public void ZoomOut(int zoomValue) {
-        if (currentZoom > 0) {
-            currentZoom -= zoomValue * 0.1f;
+        if (currentZoom > 1) {
+            currentZoom -= zoomValue;
             target.localScale = new Vector3(target.localScale.x + 0.0003f, target.localScale.y + 0.0003f, target.localScale.z + 0.0003f);
         }
     }
 
     private void cameraZoom() {
-        if (currentZoom > zoom) {
-            zoom += 0.002f;
+        if (currentZoom * 0.1 > zoom) {
+            zoom += 0.01f;
         }
-        if (currentZoom < zoom) {
-            zoom -= 0.002f;
+        if (currentZoom * 0.1 < zoom) {
+            zoom -= 0.01f;
         }
         zoom = Mathf.Clamp01(zoom);
         camera.fieldOfView = Mathf.Lerp(defaultFOV, maxZoomFOV, zoom);
