@@ -5,11 +5,11 @@ using UnityEngine.AI;
 
 public class EnemyAiTutorial : MonoBehaviour
 {
-    public NavMeshAgent agent;
+    public NavMeshAgent navMeshAgent;
 
     public Animator animator;
 
-    public Transform player;
+    private Transform player;
 
     public LayerMask whatIsGround, whatIsPlayer, whatIsBoolet;
 
@@ -19,8 +19,11 @@ public class EnemyAiTutorial : MonoBehaviour
 
     //Patroling
     public Vector3 walkPoint;
+    bool isWalkPointFinded;
     bool walkPointSet;
     public float walkPointRange;
+    public float minWalkRadius = 10f;
+    public float maxWalkRadius = 30f;
 
     //Attacking
     public float timeBetweenAttacks;
@@ -35,6 +38,8 @@ public class EnemyAiTutorial : MonoBehaviour
     List<Transform> savePoints = new List<Transform>();
     private int walkPointNumber = 0;
 
+    private Rigidbody rb;
+
     private Rigidbody[] _rigidbodies;
     private EnemyGun[] _guns;
     private float detectedSightRange = 0f;
@@ -42,6 +47,7 @@ public class EnemyAiTutorial : MonoBehaviour
 
     private void Awake()
     {
+        player = GameObject.FindWithTag("Player").transform;
         _rigidbodies = GetComponentsInChildren<Rigidbody>();
         if(!IsDieded) {
             DisableRagdoll();
@@ -50,25 +56,29 @@ public class EnemyAiTutorial : MonoBehaviour
         }
 
         _guns = GetComponentsInChildren<EnemyGun>();
-
         // player = GameObject.Find("Player").transform;
-        agent = GetComponent<NavMeshAgent>();
+        navMeshAgent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody>();
            // navPoints = this.gameObject.transform.Find("/NavPoints").gameObject.transform;
 
-        foreach (Transform child in transform) {
-            if (child.tag == "Points") {
-                foreach (Transform point in child) {
-                    navPoints.Add(point.transform);
-                    point.gameObject.GetComponent<MeshRenderer>().enabled = false;
-                }
-                child.DetachChildren();
-            }
-        }
+        // foreach (Transform child in transform) {
+        //     if (child.tag == "Points") {
+        //         foreach (Transform point in child) {
+        //             // navPoints.Add(point.transform);
+        //             point.gameObject.GetComponent<MeshRenderer>().enabled = false;
+        //         }
+        //         child.DetachChildren();
+        //     }
+        // }
 
         foreach (GameObject savePoint in GameObject.FindGameObjectsWithTag("SavePoints")) {
             savePoints.Add(savePoint.transform);
         }
+    }
+
+    public void SetNavPoint(Transform point) {
+        navPoints.Add(point);
     }
 
     private void DisableRagdoll() {
@@ -85,7 +95,7 @@ public class EnemyAiTutorial : MonoBehaviour
     }
 
     public void IfDied() {
-        agent.enabled = false;
+        navMeshAgent.enabled = false;
         animator.enabled = false;
         EnableRagdoll();
         IsDieded = true;
@@ -120,24 +130,28 @@ public class EnemyAiTutorial : MonoBehaviour
     private void Patroling() {   
         isDetect = false;
         alreadyAttacked = false;
-        if (!walkPointSet) {
+        if (!walkPointSet && !isPatroling) {
+            walkPointSet = true;
             Invoke(nameof(SearchWalkPoint), 5);
+            // Invoke(nameof(SetRandomDestination), 5);
         };
 
         if (detectedSightRange > 0) {
             Invoke(nameof(DetectedSightRangeToZero), 5);
         }
 
-        if (walkPointSet) {
+        if (isWalkPointFinded && !isPatroling) {
             isPatroling = true;
-            agent.SetDestination(walkPoint);
+            navMeshAgent.SetDestination(walkPoint);
         }
 
-        Vector3 distanceToWalkPoint = transform.position - walkPoint;
+        // Vector3 distanceToWalkPoint = transform.position - walkPoint;
 
         //Walkpoint reached
-        if (distanceToWalkPoint.magnitude < 1f) {
+        // if (distanceToWalkPoint.magnitude < 1f) {
+        if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance < 0.5f && isPatroling) {
             walkPointSet = false;
+            isWalkPointFinded = false;
             if (walkPointNumber < navPoints.Count - 1) {
                 walkPointNumber += 1;
             } else {
@@ -153,10 +167,11 @@ public class EnemyAiTutorial : MonoBehaviour
         // float randomX = Random.Range(-walkPointRange, walkPointRange) + 2f;
 
         // walkPoint = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
+        Debug.Log("SetNavPoint 1111 " + navPoints.Count + "walkPointNumber " + walkPointNumber);
         walkPoint = new Vector3(navPoints[walkPointNumber].position.x, transform.position.y, navPoints[walkPointNumber].position.z);
 
         // if (Physics.Raycast(walkPoint, -transform.up, 2f, whatIsGround))
-            walkPointSet = true;
+        isWalkPointFinded = true;
     }
 
     private void DetectedSightRangeToZero() {
@@ -169,11 +184,11 @@ public class EnemyAiTutorial : MonoBehaviour
         isPatroling = false;
         isRuningToSafePlace = true;
         this.transform.LookAt(this.transform.position);
-        agent.speed = 3;
+        navMeshAgent.speed = 3;
         Vector3 SavePointPosition = new Vector3(savePoints[0].position.x, transform.position.y, savePoints[0].position.z);
-        agent.SetDestination(SavePointPosition);
+        navMeshAgent.SetDestination(SavePointPosition);
         if (this.transform.position == SavePointPosition) {
-            agent.speed = 1;
+            navMeshAgent.speed = 1;
             isRuningToSafePlace = false;
             isCrouch = true;
         }
@@ -182,7 +197,7 @@ public class EnemyAiTutorial : MonoBehaviour
     private void DetectPlayer() {
         if (!IsDieded) {
             LookAtObject(player);
-            agent.ResetPath();
+            navMeshAgent.ResetPath();
             isDetect = true;
             alreadyAttacked = false;
             isPatroling = false;
@@ -200,20 +215,9 @@ public class EnemyAiTutorial : MonoBehaviour
     }
 
     private void LookAtObject(Transform obj) {
-
-        // Debug.Log(this.transform.eulerAngles.x + "; " + this.transform.eulerAngles.y + "; " + this.transform.eulerAngles.z);
-
         foreach (Transform child in transform.GetComponentsInChildren<Transform>()) {
             if (child.name == "weapon" || child.name == "mixamorig:Head") {
-                // Vector3 relativePos = player.position - child.position;
-                // Debug.Log("child.eulerAngles: " + child.eulerAngles.x + "; " + child.eulerAngles.y + "; " + child.eulerAngles.z);
-                // Quaternion rotation = Quaternion.LookRotation(relativePos);
-                // Quaternion current = child.localRotation;
-                // child.localRotation = Quaternion.Slerp(current, rotation, Time.deltaTime * 1);
-                // child.rotation = rotation;
                 child.LookAt(new Vector3(player.position.x, player.position.y, player.position.z));
-                // child.eulerAngles = new Vector3(child.eulerAngles.x, child.eulerAngles.y + 80, child.eulerAngles.z);
-                // child.LookAt(new Vector3(obj.position.x, obj.position.y, obj.position.z));
             }
         }
         Vector3 targetPostition = new Vector3(obj.position.x, this.transform.position.y, obj.position.z);
@@ -263,5 +267,15 @@ public class EnemyAiTutorial : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, attackRange);
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, sightRange);
+    }
+
+    private void OnCollisionEnter(Collision collision) {
+        Rigidbody otherRb = collision.gameObject.GetComponent<Rigidbody>();
+
+        if (otherRb != null) {
+            if (otherRb.mass > rb.mass) {
+                otherRb.isKinematic = true;
+            }
+        }
     }
 }

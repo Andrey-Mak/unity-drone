@@ -19554,7 +19554,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Radius: 2
-  Force: 1000
+  Force: 400
   explosion: {fileID: 0}
+  Crater: {fileID: 0}
   windForce: 0
   windPosition: {x: 0, y: 0, z: 0}

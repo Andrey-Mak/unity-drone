@@ -5,12 +5,12 @@ using UnityEngine.AI;
 
 public class Bullet : MonoBehaviour {
     public float Radius = 1f;
-    public float Force = 1f;
+    public float Force = 1000f;
     public ParticleSystem explosion;
     public GameObject Crater;
 
     private bool isActive = true; 
-    private float timeLeft = 10;
+    private float timeLeft = 1000f;
 
     private Rigidbody rb;
 
@@ -29,7 +29,7 @@ public class Bullet : MonoBehaviour {
         rb.AddForce(windPosition * windForce * Random.Range(-100, 100) * 0.01f, ForceMode.Acceleration);
         if (timeLeft > 0.0f) {
             timeLeft -= Time.deltaTime;
-            if (timeLeft <= 0.0f) {
+            if (timeLeft < 0.0f) {
                 Destroy(gameObject);
             }
         }
@@ -45,7 +45,9 @@ public class Bullet : MonoBehaviour {
         Terrain ground = collision.gameObject.GetComponent<Terrain>();
 
         if (ground) {
+            Transform CraterTransform = Crater.GetComponent<Transform>();
             MeshRenderer CraterMeshRenderer = Crater.GetComponent<MeshRenderer>();
+            CraterTransform.eulerAngles = new Vector3(0, Random.Range(0, 360), 0);
             CraterMeshRenderer.enabled = true;
         }
 
@@ -79,8 +81,8 @@ public class Bullet : MonoBehaviour {
             if (rigidbody) {
                 // rigidbody.AddForceAtPosition(transform.up * Force, transform.position);
                 rigidbody.isKinematic = false;
-                rigidbody.AddExplosionForce(Force, transform.position, Radius, 3.0F);
-                timeLeft = explosion.main.duration;
+                rigidbody.AddExplosionForce(Force, transform.position, Radius, 500.0F);
+                // timeLeft = explosion.main.duration;
                 explosion.Play();
                 GetComponent<MeshRenderer>().enabled = false;
                 GetComponent<SphereCollider>().enabled = false;

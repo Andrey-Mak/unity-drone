@@ -56,7 +56,7 @@ public class DroneFPLook : MonoBehaviour
         Vector2 rawFrameVelocity = Vector2.Scale(mouseDelta * speedRotation, Vector2.one * sensitivity);
         frameVelocity = Vector2.Lerp(frameVelocity, rawFrameVelocity, 1 / smoothing);
         velocity += frameVelocity;
-        velocity.y = Mathf.Clamp(velocity.y, -90, -10);
+        velocity.y = Mathf.Clamp(velocity.y, -90, -10 + currentZoom);
 
         // Rotate camera up-down and controller left-right from velocity.
         transform.localRotation = Quaternion.AngleAxis(-velocity.y, Vector3.right);
